@@ -1,0 +1,161 @@
+
+
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+
+/**
+ * Created by nitin on 25/12/16.
+ *
+ *
+ */
+class LevelNode {
+    public static void main(String[] args)throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in)) ;
+        int N = Integer.parseInt(br.readLine());
+        BFS graph = new BFS(N);
+        for( int i=1; i<N; i++ ) {
+            String[] line = br.readLine().split(" ");
+            int a = Integer.parseInt(line[0])-1;
+            int b = Integer.parseInt(line[1])-1;
+            Edge edge = new Edge(a,b);
+            graph.add(edge);
+        }
+        int x = Integer.parseInt(br.readLine());
+        graph.bfs(0);
+        //graph.display();
+        int ans = graph.getNoOfNodeAtLevel(x);
+        System.out.println(ans);
+    }
+}
+class BFS {
+    private final int size;
+    private final List<Edge>[] edges;
+    private final int[] visited;
+    private final int[] level;
+    private final int[] pred;
+    private final int[] dist;
+
+    public BFS(int size) {
+        this.size = size;
+        edges = new List[ size];
+        visited = new int[ size ];
+        level = new int[ size ];
+        pred = new int[ size ];
+        dist = new int[ size ];
+        for (int i = 0; i < size; i++) {
+            edges[i] = new ArrayList<Edge>();
+            dist[i] = Integer.MAX_VALUE;
+            pred[i] = -1;
+        }
+
+    }
+    /*public void addEdge(Edge edge) {
+        if( edge != null ) {
+            edges[edge.getSource()].add(edge);
+
+        }
+    }*/
+
+    public void bfs( int source ) {
+        visited[ source ] = 1;
+        level[ source ] = 1;
+        pred[ source ] = -1;
+        Queue< Integer > queue = new LinkedList< Integer >();
+        queue.add( source );
+
+        while( !queue.isEmpty() ) {
+            int u = queue.remove();
+            for( Edge edge : edges[u] ) {
+                int v = edge.getDestination();
+                if( visited[ v ] == 0 ) {
+                    visited[ v ] = 1;
+                    dist[ v ] = dist[ u ] + 1;
+                    level[ v ] = level[ u ] + 1;
+                    queue.add( v );
+                    pred[ v ] = u;
+                }
+            }
+        }
+
+    }
+
+    public void display() {
+        for( int i=0; i<level.length; i++) {
+           if(level[i] == 1)
+                System.out.println(" level of node "+i+" is "+level[i]);
+        }
+
+        for(int i=0;i<edges.length;i++) {
+            System.out.println(" Adjacecny of node "+(i+1));
+            for( Edge edge: edges[i]) {
+                System.out.print((edge.getDestination()+1)+" ");
+            }
+            System.out.println();
+        }
+    }
+    public int getNoOfNodeAtLevel(int x) {
+        int count = 0;
+        for( int i=0; i<level.length; i++) {
+            if(level[i] == x)
+                count ++;
+        }
+        return count;
+    }
+
+
+    public int getSize() {
+        return size;
+    }
+
+    public List<Edge> getIncident(int vertex) {
+        return edges[vertex];
+    }
+
+    public void add(Edge edge) {
+        edges[edge.getSource()].add(edge);
+        edge = edge.getTransposedEdge();
+        if (edge != null)
+            edges[edge.getSource()].add(edge);
+    }
+
+    public void removeVertex(int vertex) {
+        edges[vertex] = new ArrayList<Edge>();
+    }
+}
+class Edge {
+    int source;
+    int destination;
+    int weight;
+    Edge transposed = null;
+    public Edge(int souce, int destination) {
+        this.source = souce;
+        this.destination = destination;
+    }
+    public Edge(int source,int destination, int weight) {
+        this.source = source;
+        this.destination = destination;
+        this.weight = weight;
+    }
+
+    public int getSource() {
+        return source;
+    }
+
+    public int getDestination() {
+        return destination;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+    public Edge getTransposedEdge() {
+        transposed = new Edge(destination,source,weight);
+        return transposed;
+    }
+}
