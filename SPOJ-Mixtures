@@ -1,0 +1,43 @@
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.BufferedReader;
+
+
+
+public class MIXTURES {
+    public static void main(String[] args)throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder ans = new StringBuilder("");
+        while(true) {
+            String s = br.readLine();
+            if(s==null) {
+                break;
+            }
+            int n = Integer.parseInt(s);
+            String[] line2 = br.readLine().split(" ");
+            int[] p = new int[n];
+            int dp[][] = new int[n][n];
+            int mix[][] = new int[n][n];
+            for( int i=0; i<n; i++ ) {
+                p[i] = Integer.parseInt(line2[i]);
+                mix[i][i] = p[i];
+            }
+
+            int m[][] = new int[n][n];
+            for( int l=1; l < n; l++ ) {
+                for( int i=0; i < (n-l); i++ ) {
+                    int j = i + l ;
+                    for( int k = i; k<j; k++ ) {
+                        int c = mix[ i ][ k ] * mix[ k+1 ][ j ] + dp[i][k] + dp[k+1][j];
+                        if( dp[i][j] > c || k == i ) {
+                            dp[i][j] = c;
+                            mix[ i ][ j ] = (mix[ i ][ k ] + mix[k+1][ j ] )% 100;
+                        }
+                    }
+                }
+            }
+            System.out.println(dp[0][n-1]);
+        }
+
+    }
+}
