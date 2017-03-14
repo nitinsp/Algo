@@ -1,0 +1,37 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * Created by nitin on 14/3/17.
+ * spoj tutuorial problem based on dynamic programming KNAPSACK
+ */
+public class KNAPSACK {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] line0 = br.readLine().split(" ");
+        int S = Integer.parseInt(line0[0]);
+        int N = Integer.parseInt(line0[1]);
+        int[] wt = new int[N];
+        int[] val = new int[N];
+        for( int i=0; i<N; i++ ) {
+            String[] line1 = br.readLine().split(" ");
+            wt[i] = Integer.parseInt(line1[0]);
+            val[i] = Integer.parseInt(line1[1]);
+        }
+
+        int dp[][] = new int[N+1][S+1];
+
+        for( int i=N-1; i>=0; i-- ) {
+            for( int j=0; j<=S; j++ ) {
+                if(j>=wt[i]) {
+                    dp[i][j] = Math.max( dp[i+1][j], val[i] + dp[i+1][ j- wt[i] ] );
+                }
+                else {
+                    dp[i][j] = dp[i+1][j];
+                }
+            }
+        }
+        System.out.println(dp[0][S]);
+    }
+}
