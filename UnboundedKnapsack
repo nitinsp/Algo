@@ -1,0 +1,35 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * Created by nitin on 17/3/17.
+ */
+public class UKnapSack {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br= new BufferedReader(new InputStreamReader(System.in));
+        String[] line0 = br.readLine().split(" ");
+        int W = Integer.parseInt(line0[0]);
+        int n = Integer.parseInt(line0[1]);
+        int[] wt = new int[n];
+        int[] val = new int[n];
+        for(int i=0;i<n;i++) {
+            String[] line1 = br.readLine().split(" ");
+            wt[i] = Integer.parseInt(line1[0]);
+            val[i] = Integer.parseInt(line1[1]);
+        }
+        int dp[] = new int[ W+1 ];
+        for ( int i=0;i<=W; i++ ) {
+            for ( int j = 0; j<n; j++ ) {
+                if( wt[j] <=i) {
+                    dp[ i ] = Math.max( dp[i], dp[ i-wt[j] ] + val[ j ] );
+                }
+            }
+            /*System.out.println("--printing--" +i);
+            for(int k=0;k<=W;k++) {
+                System.out.print(" "+dp[k]+" ");
+            }
+            System.out.println("--");*/
+        }
+    }
+}
