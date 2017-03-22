@@ -1,0 +1,54 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
+/**
+ * Created by nitin on 22/3/17.
+ */
+public class AIBOHP {
+    static int[][] dp;
+    static int max = 100000000;
+    public static void main(String[] args) throws IOException{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int test = Integer.parseInt(br.readLine());
+        while( test-->0 ) {
+            char[] S = br.readLine().toCharArray();
+            int len = S.length;
+            dp = new int[len][len];
+            for(int i=0;i<len;i++) {
+                Arrays.fill(dp[i],-1);
+                dp[i][i] = 0;
+            }
+            int ans = recurse(S,0,len-1);
+            System.out.println(ans);
+            /*for(int i=0;i<len;i++) {
+                for(int j=0;j<len;j++) {
+                    System.out.print(" "+dp[i][j]);
+                }
+                System.out.println(" -- ");
+            }*/
+        }
+
+    }
+    public static int recurse(char[] S, int start, int end ){
+        if(start>end) {
+            return max;
+        }
+        if( start == end )
+            return 0;
+        if( start == end-1 ) {
+            return (S[start] == S[end]) ? 0:1;
+        }
+        if(S[start] == S[end] ) {
+            dp[start][end] = recurse(S,start+1,end-1);
+        }
+        if( dp[start][end] != -1 ) {
+            return dp[start][end];
+        }
+        else  {     //(S[start] != S[end] ) {
+           return dp[start][end] = Math.min(1+ recurse( S,start,end-1),1+recurse(S,start+1,end));
+        }
+
+    }
+}
