@@ -1,0 +1,38 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * Created by nitin on 22/3/17.
+ */
+public class ANARC09A {
+    public static void main(String[] args) throws IOException{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int test = 1;
+        while(true) {
+            String s = br.readLine();
+            if(s.contains("-")) {
+                break;
+            }
+            int ans = 0;
+            int open = 0;
+            int close = 0;
+            int len = s.length();
+            for( int i=0; i<s.length(); i++ ) {
+                if( s.charAt(i) == '{' ) {
+                    open++;
+                }
+                if( s.charAt(i) == '}' ) {
+                    open--;
+                }
+                if(open<0) {
+                   open  = 1;
+                    close++;
+                }
+            }
+            ans = open/2 + close;
+
+            System.out.println((test++)+". "+ans);
+        }
+    }
+}
