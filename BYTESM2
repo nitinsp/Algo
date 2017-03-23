@@ -1,0 +1,43 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * Created by nitin on 23/3/17.
+ */
+public class BYTESM2 {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int test = Integer.parseInt(br.readLine());
+        while(test-->0) {
+            String[] line = br.readLine().split(" ");
+            int n = Integer.parseInt(line[0]);
+            int m = Integer.parseInt(line[1]);
+            int[][] cost = new int[n+1][m+1];
+            for(int i=0;i<n;i++) {
+                String[] line1 = br.readLine().split(" ");
+                for(int j=0;j<line1.length;j++) {
+                    cost[i][j] = Integer.parseInt(line1[j]);
+                }
+            }
+            int[][] dp = new int[n+1][m+1];
+
+            for(int i=1;i<=n;i++) {
+                for(int j=1;j<=m;j++) {
+                    int val1 = dp[i-1][j-1];
+                    int val2 = dp[i-1][j];
+                    int val3 = 0;
+                    if((j+1)<=m) {
+                        val3 = dp[i-1][j+1];
+                    }
+                    dp[i][j] = Math.max(val1,Math.max(val2,val3))+cost[i-1][j-1];
+                }
+            }
+            int max = dp[n][0];
+            for(int j=1;j<=m;j++) {
+                max = Math.max(max,dp[n][j]);
+            }
+            System.out.println(max);
+        }
+    }
+}
