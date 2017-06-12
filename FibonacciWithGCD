@@ -1,0 +1,129 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * Created by nitin on 11/6/17.
+ */
+public class FibGCD {
+    static int MOD = (int)Math.pow(10,9)+7;
+    static int t = (int)Math.pow(10,6);
+    static long[] fibonacci;
+    public static void main(String[] args) throws IOException{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] line0 = br.readLine().split(" ");
+        int n = Integer.parseInt(line0[0]);
+        int nQ = Integer.parseInt(line0[1]);
+        String[] line1 = br.readLine().split(" ");
+        preCalculateFib();
+        int[] array = new int[n];
+        for( int i=0; i<n; i++ ) {
+            array[i] = Integer.parseInt(line1[i]);
+        }
+        Segment tree = new Segment();
+        tree.initialize(array,n);
+        for( int i=0;i<nQ; i++ ) {
+            String[] line3 = br.readLine().split(" ");
+            int l = Integer.parseInt(line3[0])-1;
+            int r = Integer.parseInt(line3[1])-1;
+            int val = tree.query(l, r);
+            long ans = fib(val);
+           // System.out.println(ans);
+        }
+        for(int i=1;i<=t;i++) {
+            System.out.println(i+" "+fib(i));
+        }
+    }
+    public static void preCalculateFib() {
+        fibonacci = new long[t];
+        fibonacci[1] = 1;
+        long  a = 0,b = 1,ans=0;
+        int i = 2;
+        while(i < t)
+        {
+            ans = (a+b) % MOD;
+            fibonacci[i] = ans;
+            a = b;
+            b = ans;
+            i++;
+        }
+    }
+    public static long  fib( int  n) {
+            if(n < t)
+                return fibonacci[n];
+            long  a = fibonacci[t-2],b = fibonacci[t-1],ans=0;
+            int i = t-1;
+            while(i < n){
+                ans = (a+b) % MOD;
+                a = b;
+                b = ans;
+                i++;
+            }
+       return ans;
+    }
+}
+class Segment {
+    int[] node;
+    int[] array;
+    int n;
+    public void initialize(int[] array,int n) {
+        this.n = n;
+        int height = (int)Math.ceil(Math.log(n)/Math.log(2));
+        int size = 2*(int)Math.pow(2, height)-1;
+        node = new int[size];
+        this.array = array;
+        build(0,0,n-1);
+        //System.out.println(size);
+    }
+    public void build(int index, int start , int end) {
+        if(start == end) {
+            node[index] = array[start];
+        }
+        else {
+            //int mid = (start+end)/2;
+            int mid = start+(end-start)/2;
+            build(2*index+1,start,mid);
+            build(2*index+2,mid+1,end);
+            node[index] = gcd(node[2*index+1],node[2*index+2]);
+        }
+    }
+    public int query(int i, int j) {
+        return gcdQuery(0,0,n-1,i,j);
+    }
+    public int gcdQuery(int index,int s, int e, int i, int j) {
+        if(i<=s && j>=e)
+            return node[index];
+        if(e<i||s>j)
+            return 0;
+        //int mid = (s+e)/2;
+        int mid = s + (e-s)/2;
+        return gcd(gcdQuery(2*index+1,s,mid,i,j),gcdQuery(2*index+2,mid+1,e,i,j));
+    }
+    public static int gcd(int a,int b) {
+        if( a<b ) {
+            int temp = b;
+            b = a;
+            a = temp;
+        }
+        if( b == 0 ) return a;
+        return gcd(b,a%b);
+    }
+    /*public void update(int pos,int val) {
+        updateQ(0,0,n-1,val,pos);
+    }
+    public void updateQ(int index,int s, int e, int val, int pos ) {
+        if(s==e)
+            node[index] = val;
+        else {
+            int mid = (s+e)/2;
+            if(pos<=mid)
+                updateQ(2*index+1,s,mid,val,pos);
+            else
+                updateQ(2*index+2,mid+1,e,val,pos);
+            node[index] = Math.min(node[2*index+1],node[2*index+2]);
+        }
+    }*/
+    /*public int log(int x, int base) {
+        return (int) Math.ceil(Math.log(x)/Math.log(base)+1e-10);
+    }*/
+}
