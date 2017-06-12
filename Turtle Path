@@ -1,0 +1,194 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+
+public class Turtle {
+    static boolean isPrime[];
+    static int[][] matrix;
+    static boolean[][] visited;
+    static long[][] dp;
+    static int dx[] = {1,1,0};
+    static int dy[] = {1,0,1};
+    static int N,M;
+    static int mod = (int)Math.pow(10,9)+7;
+    static int range = (int)Math.pow(10,5)+1;
+    static ArrayList<Point> paths;
+    public static void main(String[] args) throws IOException{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+       String line[] = br.readLine().split(" ");
+        N = Integer.parseInt(line[0]);
+        M = Integer.parseInt(line[1]);
+        /*long startTime = System.currentTimeMillis();
+        maintainPrime();
+        long endTime   = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println(totalTime);*/
+        sieveOfEratosthenes();
+        matrix = new int[N+1][M+1];
+        dp = new long[N+1][M+1];
+        visited = new boolean[N+1][M+1];
+        for(int i=1;i<=N;i++) {
+            String[] line2 = br.readLine().split(" ");
+            for(int j=1;j<=M;j++)  {
+                matrix[i][j] = Integer.parseInt(line2[j-1]);
+                if( !isPrime[matrix[i][j]])
+                dp[i][j]  = 0;
+            }
+        }
+        //calculateWays();
+        //System.out.println(dp[N][M]);
+        bfs();
+        if( visited[N][M] ) {
+            paths = new ArrayList<>();
+            paths.add(new Point(1,1));
+            dfs(new Point(1,1));
+            for( Point p: paths)
+            System.out.println(p.x+" "+p.y);
+        }
+        else {
+            System.out.println("0");
+        }
+    }
+    public static void calculateWays() {
+        for(int i=1;i<=N;i++) {
+            if( isPrime[matrix[i][1]] ) {
+                dp[i][1] = 1;
+            }
+            else {
+                break;
+            }
+        }
+        for(int i=1;i<=M;i++) {
+            if( isPrime[matrix[1][i]] ) {
+                dp[1][i] = 1;
+            }
+            else {
+                break;
+            }
+        }
+        for(int i=2;i<=N;i++) {
+            for(int j=2;j<=M;j++) {
+                if( isPrime[matrix[i][j]]) {
+                    dp[i][j] = ((dp[i-1][j-1] +dp[i-1][j])%MOD + dp[i][j-1])%MOD;
+                }
+            }
+        }
+
+    }
+    public static void dfs(Point points) {
+        for(int i=0;i<3; i++ ) {
+            int x = points.x + dx[i];
+            int y = points.y + dy[i];
+            if( x==N && y==M) {
+                paths.add(new Point(x,y));
+                return;
+            }
+            if( x>N || y>M || !visited[x][y] ) {
+                continue;
+            }
+            else {
+                paths.add(new Point(x,y));
+                dfs(new Point(x,y));
+                return;
+            }
+        }
+    }
+
+
+    public static void bfs() {
+        Queue<Point> queue = new LinkedList<>();
+        queue.add(new Point(1,1));
+        int ans  = 0;
+        visited[1][1] = true;
+        ArrayList<Point> path = new ArrayList<>();
+        while ( !queue.isEmpty() ) {
+            Point point = queue.remove();
+            int x = point.x;
+            int y = point.y;
+            for(int i=0;i<3; i++ ) {
+                if( isNotObstacle(x+dx[i], y+dy[i])  ) {
+                    queue.add(new Point(x+dx[i], y+dy[i]));
+                    visited[x+dx[i]][y+dy[i]] = true;
+
+                }
+                if( x+dx[i] == N && y+dy[i] == M) {
+                    ans++;
+                    ans = ans%mod;
+                }
+            }
+        }
+        if( visited[N][M]) {
+            System.out.println(ans);
+        }
+        /*for(int i=1;i<=N;i++) {
+            for(int j=1;j<=M;j++) {
+                System.out.print(visited[i][j]+" ");
+            }
+            System.out.println();
+        }*/
+    }
+    public static boolean isNotObstacle(int x,int y) {
+
+        if( x<1 || x > N || y<1 || y>M || !isPrime[matrix[x][y]]) {
+            return false;
+        }
+        return true;
+    }
+    static class Point {
+        int x;
+        int y;
+        Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    /*public static void maintainPrime() {
+        isPrime = new boolean[range];
+        for(int i=1;i<(range);i++) {
+            if(isPrime(i)) {
+                isPrime[i] = true;
+            }
+        }
+    }*/
+    public static void  sieveOfEratosthenes() {
+        long startTime = System.currentTimeMillis();
+        isPrime = new boolean[range];
+        Arrays.fill(isPrime,true);
+
+        for(int p = 2; p*p <range; p++) {
+            if(isPrime[p] == true)
+            {
+                for(int i = p*2; i < range; i += p)
+                    isPrime[i] = false;
+            }
+        }
+        /*long endTime   = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println(totalTime);*/
+        /*// Print all prime numbers
+        for(int i = 2; i <= range; i++)
+        {
+            if(isPrime[i] == true)
+                System.out.print(i + " ");
+        }*/
+    }
+    /*public static boolean isPrime(int n) {
+        if(n==1) return false;
+        else if(n<4)return true;
+        else if(n%2==0) return false;
+        else if(n<9) return true;
+        else if(n%3==0) return false;
+        else {
+            int r = (int)Math.sqrt(n) ;
+            int f =5;
+            while(f<=r) {
+                if(n%f==0) return false;
+                if(n%(f+2)==0) return false;
+                f=f+6;
+            }
+            return true;
+        }
+    }*/
+}
