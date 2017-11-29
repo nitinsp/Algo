@@ -1,0 +1,109 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * Created by nitin on 28/11/17.
+ */
+public class HorribleQueries {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int test = Integer.parseInt(br.readLine());
+        while( test-- > 0 ) {
+            String[] line = br.readLine().split(" ");
+            int N = Integer.parseInt(line[0]);
+            int C = Integer.parseInt(line[1]);
+            int[] input = new int[N];
+            SegmentTree st = new SegmentTree();
+            int[] segmentTree = st.createSegmentTree(input);
+            int[] lazy = new int[ segmentTree.length];
+            while( C-- > 0 ) {
+            String[] query = br.readLine().split(" ");
+            int type = Integer.parseInt(query[0]);
+            if( type == 0 ) {
+                int l = Integer.parseInt(query[1])-1;
+                int r = Integer.parseInt(query[2])-1;
+                int val = Integer.parseInt(query[3]);
+                st.updateSegTreeLazy(input,segmentTree,lazy,l,r,val);
+            } else {
+                int l = Integer.parseInt(query[1])-1;
+                int r = Integer.parseInt(query[2])-1;
+                int ans = st.rangeSumQueryLazy(segmentTree,lazy,l,r,N);
+                System.out.println(ans);
+            }
+            }
+        }
+    }
+     static class SegmentTree {
+        public int[] createSegmentTree(int[] input) {
+            int height = (int)Math.ceil(Math.log(input.length)/Math.log(2));
+            int[] segmentTree = new int[(int)Math.pow(2,height+1)-1];
+            //constructSumSegmentTree(segmentTree,input,0,input.length-1,0);
+            return segmentTree;
+        }
+        public void constructSumSegmentTree(int[] segmentTree, int[] input, int low, int high, int pos) {
+            if( low == high ) {
+                segmentTree[pos] = input[low];
+                return ;
+            }
+            int mid = (low+high)/2;
+            constructSumSegmentTree(segmentTree,input,low,mid,2*pos+1);
+            constructSumSegmentTree(segmentTree,input,mid+1,high, 2*pos+2);
+            segmentTree[pos] = segmentTree[2*pos+1] + segmentTree[2*pos+2];
+        }
+        public void updateSegTreeLazy(int[] input, int[] segmentTree, int[] lazy, int startRange, int endRange, int delta) {
+            updateSegTreeLazy(segmentTree, lazy,startRange,endRange,delta,0, input.length-1, 0 );
+        }
+        public void updateSegTreeLazy(int[] segmentTree, int[] lazy, int startRange, int endRange,int delta, int low, int high, int pos) {
+            if( low > high ) {
+                return;
+            }
+            if( lazy[pos] != 0 ) {
+                segmentTree[pos] += lazy[pos];
+                if( low != high ) {
+                    lazy[ 2 * pos + 1 ] += lazy[ pos ];
+                    lazy[ 2 * pos + 2 ] += lazy[ pos ];
+                }
+                lazy[ pos ] = 0;
+            }
+            if( startRange > high || endRange < low ) return;
+            if( startRange <= low && endRange >= high ) {
+                segmentTree[ pos ] += delta;
+                if( low != high ) {
+                    lazy[2*pos + 1] += delta;
+                    lazy[2*pos + 2] += delta;
+                }
+                return ;
+            }
+            int mid = (low+high)/2;
+            updateSegTreeLazy(segmentTree,lazy, startRange,endRange, delta, low,mid, 2*pos+1);
+            updateSegTreeLazy(segmentTree,lazy, startRange,endRange, delta, mid+1,high, 2*pos+1);
+            segmentTree[pos]  = segmentTree[2*pos+1] +segmentTree[2*pos+2];
+        }
+        public int rangeSumQueryLazy(int[] segmentTree, int[] lazy, int qLow, int qHigh, int len) {
+            return rangeSumQueryLazy(segmentTree,lazy,qLow,qHigh,0,len-1,0);
+        }
+        public int rangeSumQueryLazy(int[] segmentTree, int[] lazy, int qLow, int qHigh, int low, int high, int pos) {
+            if( low > high ) return 0;
+            if( lazy[ pos ] != 0 ) {
+                segmentTree[ pos ] += lazy[pos];
+                if( low != high ) {
+                    lazy[ 2*pos + 1 ] += lazy[pos];
+                    lazy[ 2*pos + 2 ] += lazy[pos];
+                }
+                lazy[pos] = 0;
+            }
+            if( qLow > high || qHigh < low ) {
+                return 0;
+            }
+            if( qLow <= low && qHigh >= high ) {
+                return segmentTree[pos];
+            }
+            int mid = (low+high)/2;
+
+            int val1 = rangeSumQueryLazy(segmentTree,lazy,qLow,qHigh,low,mid,2*pos+1);
+            int val2 = rangeSumQueryLazy(segmentTree,lazy,qLow,qHigh,mid+1,high,2*pos+2);
+            return val1+val2;
+        }
+    }
+}
